@@ -23,7 +23,7 @@ while (opcao != "4")
             ExibirCompromissosHoje();
             break;
         case "3":
-            //ExibirCompromissosDataEspecifica();
+            ExibirCompromissosDataEspecifica();
             break;
         case "4":
             Console.WriteLine("Saindo...");
@@ -62,6 +62,24 @@ void ExibirCompromissosHoje()
     foreach (var compromisso in compromissos)
     {
         if (compromisso.Key.Date == hoje)
+        {
+            Console.WriteLine($"Data: {TimeZoneInfo.ConvertTime(compromisso.Key, timezone)} | Título: {compromisso.Value}");
+        }
+    }
+}
+
+void ExibirCompromissosDataEspecifica() 
+{
+    Console.Write("Digite a data (formato: dd/MM/yyyy): ");
+    var dataTexto = Console.ReadLine();
+    var dataEspecifica = DateTime.ParseExact(dataTexto, "dd/MM/yyyy", null).Date;
+    Console.Write("Digite o timezone atual: ");
+    var timezoneAtual = Console.ReadLine();
+    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
+    Console.WriteLine($"\nCompromissos para {dataEspecifica:dd/MM/yyyy}:");
+    foreach (var compromisso in compromissos)
+    {
+        if (compromisso.Key.Date == dataEspecifica)
         {
             Console.WriteLine($"Data: {TimeZoneInfo.ConvertTime(compromisso.Key, timezone)} | Título: {compromisso.Value}");
         }
