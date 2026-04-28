@@ -6,7 +6,7 @@ var opcao = "1";
 
 while (opcao != "4")
 {
-    Console.WriteLine("========= AGENDA =========");
+    Console.WriteLine("\n========= AGENDA =========");
     Console.WriteLine("[1] - Agendar compromisso");
     Console.WriteLine("[2] - Exibir compromissos de hoje");
     Console.WriteLine("[3] - Exibir compromissos de outro dia");
@@ -37,11 +37,11 @@ while (opcao != "4")
 void AgendarCompromisso() 
 {
     Console.Write("Digite a data e hora (formato: dd/MM/yyyy HH:mm): ");
-    var _dataCompromisso = Console.ReadLine();
-    var dataCompromisso = DateTime.ParseExact(_dataCompromisso, "dd/MM/yyyy HH:mm", null);
-    Console.Write("Digite o timezone desejado: ");
-    var _timezone = Console.ReadLine();
-    var timezone = TimeZoneInfo.FindSystemTimeZoneById(_timezone);
+    var dataCompromissoTexto = Console.ReadLine();
+    var dataCompromisso = DateTime.ParseExact(dataCompromissoTexto, "dd/MM/yyyy HH:mm", null);
+    Console.Write("Digite o timezone atual: ");
+    var timezoneAtual = Console.ReadLine();
+    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
     Console.Write("Digite o título do compromisso: ");
     var tituloCompromisso = Console.ReadLine();
 
@@ -53,13 +53,17 @@ void AgendarCompromisso()
 
 void ExibirCompromissosHoje() 
 {
-    var hoje = DateTime.Today;
+    Console.Write("Digite o timezone atual: ");
+    var timezoneAtual = Console.ReadLine();
+    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
+    var dataAtual = TimeZoneInfo.ConvertTime(DateTime.Now, timezone);
+    var hoje = dataAtual.Date;
     Console.WriteLine($"\nCompromissos para hoje ({hoje:dd/MM/yyyy}):");
     foreach (var compromisso in compromissos)
     {
         if (compromisso.Key.Date == hoje)
         {
-            Console.WriteLine($"Data: {compromisso.Key} | Título: {compromisso.Value}");
+            Console.WriteLine($"Data: {TimeZoneInfo.ConvertTime(compromisso.Key, timezone)} | Título: {compromisso.Value}");
         }
     }
 }
