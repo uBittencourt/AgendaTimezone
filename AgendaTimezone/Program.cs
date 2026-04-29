@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-
-
-Dictionary<DateTime, string> compromissos = new Dictionary<DateTime, string>();
+﻿Dictionary<DateTime, string> compromissos = new Dictionary<DateTime, string>();
 var opcao = "1";
 
 while (opcao != "4")
@@ -36,14 +33,15 @@ while (opcao != "4")
 
 void AgendarCompromisso() 
 {
-    Console.Write("Digite a data e hora (formato: dd/MM/yyyy HH:mm): ");
-    var dataCompromissoTexto = Console.ReadLine();
-    var dataCompromisso = DateTime.ParseExact(dataCompromissoTexto, "dd/MM/yyyy HH:mm", null);
-    Console.Write("Digite o timezone atual: ");
-    var timezoneAtual = Console.ReadLine();
-    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
-    Console.Write("Digite o título do compromisso: ");
-    var tituloCompromisso = Console.ReadLine();
+    var dataCompromisso = ObterDataValida("dd/MM/yyyy HH:mm");
+    var timezone = ObterTimeZone();
+
+    String tituloCompromisso;
+    do
+    {
+        Console.Write("Digite o título do compromisso: ");
+        tituloCompromisso = Console.ReadLine();
+    } while (string.IsNullOrWhiteSpace(tituloCompromisso));
 
     var dataTimezone = TimeZoneInfo.ConvertTime(dataCompromisso, timezone);
     compromissos.Add(dataTimezone, tituloCompromisso);
@@ -53,11 +51,10 @@ void AgendarCompromisso()
 
 void ExibirCompromissosHoje() 
 {
-    Console.Write("Digite o timezone atual: ");
-    var timezoneAtual = Console.ReadLine();
-    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
+    var timezone = ObterTimeZone();
     var dataAtual = TimeZoneInfo.ConvertTime(DateTime.Now, timezone);
     var hoje = dataAtual.Date;
+
     Console.WriteLine($"\nCompromissos para hoje ({hoje:dd/MM/yyyy}):");
     foreach (var compromisso in compromissos)
     {
@@ -70,24 +67,44 @@ void ExibirCompromissosHoje()
 
 void ExibirCompromissosDataEspecifica() 
 {
-    Console.Write("Digite a data (formato: dd/MM/yyyy): ");
-    var dataTexto = Console.ReadLine();
-    var dataEspecifica = DateTime.ParseExact(dataTexto, "dd/MM/yyyy", null).Date;
-    Console.Write("Digite o timezone atual: ");
-    var timezoneAtual = Console.ReadLine();
-    var timezone = TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
+    var dataEspecifica = ObterDataValida("dd/MM/yyyy");
+    var timezone = ObterTimeZone();
+
     Console.WriteLine($"\nCompromissos para {dataEspecifica:dd/MM/yyyy}:");
     foreach (var compromisso in compromissos)
     {
-        if (compromisso.Key.Date == dataEspecifica)
+        if (compromisso.Key.Date == dataEspecifica.Date)
         {
             Console.WriteLine($"Data: {TimeZoneInfo.ConvertTime(compromisso.Key, timezone)} | Título: {compromisso.Value}");
         }
     }
 }
 
-// TESTES
-//foreach (var tz in TimeZoneInfo.GetSystemTimeZones())
-//{
-//    Console.WriteLine($"{tz.Id} | {tz.DisplayName}");
-//}
+DateTime ObterDataValida(String formato)
+{
+    DateTime dataFormatada;
+    bool isValido;
+    do
+    {
+        Console.Write($"Digite a data (formato: {formato}): ");
+        var dataTexto = Console.ReadLine();
+        isValido = DateTime.TryParseExact(dataTexto, formato, null, System.Globalization.DateTimeStyles.None, out dataFormatada);
+
+        if(!isValido)
+            Console.WriteLine("Data inválida. Tente novamente.");
+    } while (!isValido);
+    return dataFormatada;
+}
+
+TimeZoneInfo ObterTimeZone()
+{
+    Console.Write("Digite o timezone atual: ");
+    var timezoneAtual = Console.ReadLine();
+    try
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(timezoneAtual);
+    } catch
+    {
+        return TimeZoneInfo.Local;
+    }
+}
